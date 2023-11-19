@@ -30,6 +30,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # need previous commit to find PR head commit info
+          fetch-depth: 2
+          
       - name: Build and Publish to GitHub Packages Apache Maven
         run: ./build_and_publish_backend.sh
         env:
