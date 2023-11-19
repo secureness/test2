@@ -1,0 +1,38 @@
+name: Java Build, Push, Test
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - .github/workflows/java-build-push-test.yaml
+      - backend
+      - protos
+      - pom.xml
+      - build_and_publish_backend.sh
+  push:
+    branches:
+      - main
+      - 'release/*'
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write  # Read is required for actions/checkout, write is required to comment on commits
+  pull-requests: write # This is needed for the coverage plugin to write comments to the PR
+  packages: write
+  statuses: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-push-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build and Publish to GitHub Packages Apache Maven
+        run: ./build_and_publish_backend.sh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.branch_names.outputs.current_branch }}
+
